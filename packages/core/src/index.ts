@@ -88,6 +88,9 @@ export {
   logError
 } from './utils';
 
+// Re-export string utilities with explicit names to avoid conflicts
+export { isEmptyString } from './utils/string';
+
 // Re-export error classes and utilities
 export {
   PrismateError,

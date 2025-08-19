@@ -3,56 +3,56 @@
 import { z } from "zod";
 
 // Input types for CRUD operations
-export type CreateInput = {
+export type CreateInput<T = Record<string, unknown>> = {
   model: string;
-  data: any;
+  data: T;
 };
 
-export type FindManyInput = {
+export type FindManyInput<TSelect = unknown, TInclude = unknown, TWhere = Record<string, unknown>, TOrderBy = unknown> = {
   model: string;
-  where?: any;
-  select?: any;
-  include?: any;
-  orderBy?: any;
+  where?: TWhere;
+  select?: TSelect;
+  include?: TInclude;
+  orderBy?: TOrderBy;
   take?: number;
   skip?: number;
 };
 
-export type FindUniqueInput = {
+export type FindUniqueInput<TSelect = unknown, TInclude = unknown, TWhere = Record<string, unknown>> = {
   model: string;
-  where: any;
-  select?: any;
-  include?: any;
+  where: TWhere;
+  select?: TSelect;
+  include?: TInclude;
 };
 
-export type UpdateInput = {
+export type UpdateInput<TData = Record<string, unknown>, TSelect = unknown, TInclude = unknown, TWhere = Record<string, unknown>> = {
   model: string;
-  where: any;
-  data: any;
-  select?: any;
-  include?: any;
+  where: TWhere;
+  data: TData;
+  select?: TSelect;
+  include?: TInclude;
 };
 
-export type DeleteInput = {
+export type DeleteInput<TSelect = unknown, TInclude = unknown, TWhere = Record<string, unknown>> = {
   model: string;
-  where: any;
-  select?: any;
-  include?: any;
+  where: TWhere;
+  select?: TSelect;
+  include?: TInclude;
 };
 
-export type CountInput = {
+export type CountInput<TWhere = Record<string, unknown>> = {
   model: string;
-  where?: any;
+  where?: TWhere;
 };
 
-export type AggregateInput = {
+export type AggregateInput<TWhere = Record<string, unknown>, TAggregateFields = Record<string, unknown>> = {
   model: string;
-  where?: any;
-  _count?: any;
-  _avg?: any;
-  _sum?: any;
-  _min?: any;
-  _max?: any;
+  where?: TWhere;
+  _count?: TAggregateFields;
+  _avg?: TAggregateFields;
+  _sum?: TAggregateFields;
+  _min?: TAggregateFields;
+  _max?: TAggregateFields;
 };
 
 // Validation result types
@@ -71,10 +71,10 @@ export interface Validator<T> {
 }
 
 // Schema validator interface
-export interface SchemaValidator<TDMMF> {
-  validateData(model: string, data: any): any;
+export interface SchemaValidator {
+  validateData(model: string, data: Record<string, unknown>): Record<string, unknown>;
   getOrCreateZodSchema(model: string): z.ZodTypeAny;
   createZodSchema(model: string): z.ZodTypeAny;
-  mapFieldToZod(field: any): z.ZodTypeAny;
+  mapFieldToZod(field: Record<string, unknown>): z.ZodTypeAny;
   getBaseZodType(fieldType: string): z.ZodTypeAny;
 } 

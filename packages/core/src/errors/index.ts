@@ -5,7 +5,7 @@ export class PrismateError extends Error {
   constructor(
     message: string,
     public readonly code: string,
-    public readonly details?: Record<string, any>
+    public readonly details?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'PrismateError';
@@ -17,7 +17,7 @@ export class ValidationError extends PrismateError {
   constructor(
     message: string,
     public readonly field?: string,
-    public readonly value?: any
+    public readonly value?: unknown
   ) {
     super(message, 'VALIDATION_ERROR', { field, value });
     this.name = 'ValidationError';
@@ -70,7 +70,7 @@ export class CacheError extends PrismateError {
 export const createValidationError = (
   message: string,
   field?: string,
-  value?: any
+  value?: unknown
 ): ValidationError => new ValidationError(message, field, value);
 
 export const createSchemaError = (

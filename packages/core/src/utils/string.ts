@@ -41,7 +41,7 @@ export const uncapitalize = (str: string): string => {
 /**
  * Checks if a string is empty or contains only whitespace
  */
-export const isEmpty = (str: string): boolean => {
+export const isEmptyString = (str: string): boolean => {
   return !str || str.trim().length === 0;
 };
 
