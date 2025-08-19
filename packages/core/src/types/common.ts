@@ -1,16 +1,16 @@
 // Common utility types and interfaces
 
-// Generic result type for operations
-export type Result<T, E = Error> = {
-  success: true;
-  data: T;
-} | {
-  success: false;
-  error: E;
-};
+// Generic result type for operations with enhanced constraints
+export type Result<T, E extends Error = Error> =
+  | { success: true; data: T; error?: never }
+  | { success: false; data?: never; error: E };
+
+// Utility types for Result
+export type SuccessResult<T> = Extract<Result<T>, { success: true }>;
+export type ErrorResult<E extends Error = Error> = Extract<Result<unknown, E>, { success: false }>;
 
 // Async result type
-export type AsyncResult<T, E = Error> = Promise<Result<T, E>>;
+export type AsyncResult<T, E extends Error = Error> = Promise<Result<T, E>>;
 
 // Pagination types
 export interface PaginationOptions {
@@ -43,7 +43,7 @@ export interface SortOption {
 export interface FilterCondition {
   field: string;
   operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains' | 'startsWith' | 'endsWith' | 'in' | 'notIn';
-  value: any;
+  value: unknown;
 }
 
 export interface FilterGroup {
@@ -55,7 +55,7 @@ export interface FilterGroup {
 export interface QueryOptions {
   select?: Record<string, boolean>;
   include?: Record<string, boolean>;
-  where?: any;
+  where?: Record<string, unknown>;
   orderBy?: SortOption | SortOption[];
   pagination?: PaginationOptions;
 }
@@ -84,4 +84,4 @@ export interface Lifecycle {
 export interface Configurable<TConfig> {
   configure(config: Partial<TConfig>): void;
   getConfig(): TConfig;
-} 
+}
