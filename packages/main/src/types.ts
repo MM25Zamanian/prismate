@@ -1,4 +1,26 @@
-// Schema-related type definitions
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type z from "zod";
+
+// Prisma client methods that should be excluded from model operations
+export type ExcludedKeys =
+  | "$connect"
+  | "$disconnect"
+  | "$on"
+  | "$transaction"
+  | "$use"
+  | "$extends"
+  | "$runCommandRaw"
+  | "$queryRaw"
+  | "$executeRaw"
+  | "$metrics"
+  | "$queryRawUnsafe"
+  | "$executeRawUnsafe";
+
+// Extract only the model delegate methods from the client
+export type ModelDelegates<TClient> = Omit<TClient, ExcludedKeys>;
+
+// Extract model names as string literals
+export type ModelName<TClient> = Extract<keyof ModelDelegates<TClient>, string>;
 
 // Comprehensive schema field definition with all Prisma field properties
 export interface SchemaField {
@@ -82,12 +104,60 @@ export type Schemas<TDMMF> = {
   }>;
 };
 
-// Schema manager interface
-export interface SchemaManager<TDMMF> {
-  readonly schemas: Schemas<TDMMF>;
-  readonly schemaCount: number;
-  getModelSchema(model: string): readonly SchemaField[] | undefined;
-  hasModel(model: string): boolean;
-  getModelFields(model: string): readonly string[];
-  getAvailableModels(): readonly string[];
-} 
+// Type-safe models array
+export type Models<TClient> = readonly ModelName<NonNullable<TClient>>[];
+
+export type CreateInput = {
+  model: string;
+  data: any;
+};
+
+export type FindManyInput = {
+  model: string;
+  where?: any;
+  select?: any;
+  include?: any;
+  orderBy?: any;
+  take?: number;
+  skip?: number;
+};
+
+export type FindUniqueInput = {
+  model: string;
+  where: any;
+  select?: any;
+  include?: any;
+};
+
+export type UpdateInput = {
+  model: string;
+  where: any;
+  data: any;
+  select?: any;
+  include?: any;
+};
+
+export type DeleteInput = {
+  model: string;
+  where: any;
+  select?: any;
+  include?: any;
+};
+
+export type CountInput = {
+  model: string;
+  where?: any;
+};
+
+export type AggregateInput = {
+  model: string;
+  where?: any;
+  _count?: any;
+  _avg?: any;
+  _sum?: any;
+  _min?: any;
+  _max?: any;
+};
+
+// Cache for Zod schemas to improve performance
+export type SchemaCache = Map<string, z.ZodTypeAny>;

@@ -1,118 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { camelCase } from "change-case";
 
-// Prisma client methods that should be excluded from model operations
-export type ExcludedKeys =
-  | "$connect"
-  | "$disconnect"
-  | "$on"
-  | "$transaction"
-  | "$use"
-  | "$extends"
-  | "$runCommandRaw"
-  | "$queryRaw"
-  | "$executeRaw"
-  | "$metrics"
-  | "$queryRawUnsafe"
-  | "$executeRawUnsafe";
-
-// Extract only the model delegate methods from the client
-export type ModelDelegates<TClient> = Omit<TClient, ExcludedKeys>;
-
-// Extract model names as string literals
-export type ModelName<TClient> = Extract<keyof ModelDelegates<TClient>, string>;
-
-// Comprehensive schema field definition with all Prisma field properties
-export interface SchemaField {
-  readonly name: string;
-  readonly type: string;
-  readonly kind: string;
-  readonly isRequired: boolean;
-  readonly isList: boolean;
-  readonly isUnique: boolean;
-  readonly isId: boolean;
-  readonly relationName?: string;
-  readonly relationFromFields?: readonly string[];
-  readonly relationToFields?: readonly string[];
-  readonly relationOnDelete?: string;
-  readonly relationOnUpdate?: string;
-  readonly default?: unknown;
-  readonly hasDefaultValue: boolean;
-}
-
-// DMMF model interface for type safety
-export interface DMMFModel {
-  readonly name: string;
-  readonly fields: readonly DMMFField[];
-}
-
-export interface DMMFField {
-  readonly name: string;
-  readonly type: string;
-  readonly kind: string;
-  readonly isRequired: boolean;
-  readonly isList: boolean;
-  readonly isUnique: boolean;
-  readonly isId: boolean;
-  readonly relationName?: string;
-  readonly relationFromFields?: readonly string[];
-  readonly relationToFields?: readonly string[];
-  readonly relationOnDelete?: string;
-  readonly relationOnUpdate?: string;
-  readonly default?: unknown;
-  readonly hasDefaultValue: boolean;
-}
-
-// DMMF structure interface
-export interface DMMF {
-  readonly datamodel?: {
-    readonly models?: readonly DMMFModel[];
-  };
-}
-
-// DMMF-like structure for type extraction
-export type DMMFLike = {
-  readonly datamodel: {
-    readonly models: readonly {
-      readonly name: string;
-      readonly fields: readonly { readonly name: string }[];
-    }[];
-  };
-};
-
-// Infer model keys (camelCase) from DMMF at the type level
-export type ModelKeysFromDMMF<TDMMF> = TDMMF extends DMMFLike
-  ? Uncapitalize<TDMMF["datamodel"]["models"][number]["name"]>
-  : string;
-
-// Infer field names for a given model M (camelCase) from DMMF at the type level
-export type FieldNamesFromDMMF<TDMMF, M extends string> = TDMMF extends DMMFLike
-  ? Extract<
-      TDMMF["datamodel"]["models"][number],
-      { name: Capitalize<M> }
-    > extends { fields: infer TFields }
-    ? TFields extends ReadonlyArray<{ name: infer F }>
-      ? Extract<F, string>
-      : string
-    : string
-  : string;
-
-// Schemas type driven by TDMMF; falls back to string keys if unknown
-export type Schemas<TDMMF> = {
-  readonly [M in ModelKeysFromDMMF<TDMMF>]: Readonly<{
-    readonly [F in FieldNamesFromDMMF<TDMMF, M>]: SchemaField;
-  }>;
-};
-
-// Type-safe models array
-export type Models<TClient> = readonly ModelName<NonNullable<TClient>>[];
+import type {
+  ModelName,
+  Models,
+  Schemas,
+  DMMF,
+  DMMFField,
+  DMMFModel,
+  SchemaField,
+} from "./types";
 
 /**
  * PrismaClientManager provides a type-safe, memory-safe wrapper around Prisma clients
  * with support for nullable clients and comprehensive schema information.
  */
-export class PrismaClientManager<
+export class PrismaClient<
   TClient extends Record<string, any> | null | undefined,
-  TDMMF = unknown
+  TDMMF = unknown,
 > {
   private readonly client: TClient;
   public readonly models: Models<TClient>;
@@ -128,7 +33,7 @@ export class PrismaClientManager<
    * Extracts model names from the client instance, filtering out internal methods
    */
   private extractModels(client: TClient): Models<TClient> {
-    if (!client) return [];
+    if (!client) {return [];}
 
     const modelNames = Object.keys(client)
       .filter((key) => this.isModelKey(key))
@@ -152,7 +57,9 @@ export class PrismaClientManager<
   /**
    * Builds schemas from DMMF data, ensuring type safety and immutability
    */
-  private buildSchemas(dmmf?: DMMF): Readonly<Record<string, Readonly<Record<string, SchemaField>>>> {
+  private buildSchemas(
+    dmmf?: DMMF
+  ): Readonly<Record<string, Readonly<Record<string, SchemaField>>>> {
     if (!dmmf?.datamodel?.models) {
       return Object.freeze({});
     }
@@ -162,7 +69,11 @@ export class PrismaClientManager<
     for (const model of dmmf.datamodel.models) {
       const camelCaseModelName = camelCase(model.name);
       // Only include models that exist in our client
-      if (this.models.includes(camelCaseModelName as ModelName<NonNullable<TClient>>)) {
+      if (
+        this.models.includes(
+          camelCaseModelName as ModelName<NonNullable<TClient>>
+        )
+      ) {
         schemas[camelCaseModelName] = this.buildModelSchema(model);
       }
     }
@@ -218,11 +129,12 @@ export class PrismaClientManager<
     model: M,
     operation: (client: NonNullable<TClient>, model: M) => Promise<R>
   ): Promise<R | null> {
-    if (!this.client) return null;
-    
+    if (!this.client) {return null;}
+
     try {
       return await operation(this.client, model);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(
         `Error executing operation on model ${String(model)}:`,
         error
@@ -238,7 +150,7 @@ export class PrismaClientManager<
     model: M,
     args: Parameters<NonNullable<TClient>[M]["create"]>[0]
   ): Promise<ReturnType<NonNullable<TClient>[M]["create"]> | null> {
-    return this.safeExecute(model, async (client, modelName) => 
+    return this.safeExecute(model, async (client, modelName) =>
       client[modelName].create(args)
     );
   }
@@ -250,7 +162,7 @@ export class PrismaClientManager<
     model: M,
     args: Parameters<NonNullable<TClient>[M]["findUnique"]>[0]
   ): Promise<ReturnType<NonNullable<TClient>[M]["findUnique"]> | null> {
-    return this.safeExecute(model, async (client, modelName) => 
+    return this.safeExecute(model, async (client, modelName) =>
       client[modelName].findUnique(args)
     );
   }
@@ -262,7 +174,7 @@ export class PrismaClientManager<
     model: M,
     args?: Parameters<NonNullable<TClient>[M]["findMany"]>[0]
   ): Promise<ReturnType<NonNullable<TClient>[M]["findMany"]> | []> {
-    const result = await this.safeExecute(model, async (client, modelName) => 
+    const result = await this.safeExecute(model, async (client, modelName) =>
       client[modelName].findMany(args)
     );
     return result ?? [];
@@ -275,7 +187,7 @@ export class PrismaClientManager<
     model: M,
     args: Parameters<NonNullable<TClient>[M]["update"]>[0]
   ): Promise<ReturnType<NonNullable<TClient>[M]["update"]> | null> {
-    return this.safeExecute(model, async (client, modelName) => 
+    return this.safeExecute(model, async (client, modelName) =>
       client[modelName].update(args)
     );
   }
@@ -287,7 +199,7 @@ export class PrismaClientManager<
     model: M,
     args: Parameters<NonNullable<TClient>[M]["delete"]>[0]
   ): Promise<ReturnType<NonNullable<TClient>[M]["delete"]> | null> {
-    return this.safeExecute(model, async (client, modelName) => 
+    return this.safeExecute(model, async (client, modelName) =>
       client[modelName].delete(args)
     );
   }

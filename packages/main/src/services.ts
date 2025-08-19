@@ -1,66 +1,24 @@
-import { ModelName, PrismaClientManager, SchemaField, Schemas } from "./prisma-client-manager";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from "zod";
 
-// Type definitions for better type safety
-type CreateInput = {
-  model: string;
-  data: any;
-};
+import { PrismaClient } from "./prisma-client";
 
-type FindManyInput = {
-  model: string;
-  where?: any;
-  select?: any;
-  include?: any;
-  orderBy?: any;
-  take?: number;
-  skip?: number;
-};
-
-type FindUniqueInput = {
-  model: string;
-  where: any;
-  select?: any;
-  include?: any;
-};
-
-type UpdateInput = {
-  model: string;
-  where: any;
-  data: any;
-  select?: any;
-  include?: any;
-};
-
-type DeleteInput = {
-  model: string;
-  where: any;
-  select?: any;
-  include?: any;
-};
-
-type CountInput = {
-  model: string;
-  where?: any;
-};
-
-type AggregateInput = {
-  model: string;
-  where?: any;
-  _count?: any;
-  _avg?: any;
-  _sum?: any;
-  _min?: any;
-  _max?: any;
-};
-
-// Cache for Zod schemas to improve performance
-type SchemaCache = Map<string, z.ZodTypeAny>;
+import type {
+  SchemaCache,
+  CreateInput,
+  ModelName,
+  FindManyInput,
+  FindUniqueInput,
+  UpdateInput,
+  DeleteInput,
+  Schemas,
+  SchemaField,
+} from "./types";
 
 export default class Server<
   TClient extends Record<string, any> | null | undefined,
   TDMMF = unknown,
-> extends PrismaClientManager<TClient, TDMMF> {
+> extends PrismaClient<TClient, TDMMF> {
   private readonly schemaCache: SchemaCache = new Map();
 
   constructor(client: TClient, dmmf?: any) {
@@ -139,7 +97,7 @@ export default class Server<
     }
   }
 
-  private async handleCount(input: CountInput) {
+  private async handleCount() {
     try {
       if (!this.hasClient) {
         throw new Error("No database client available");
@@ -153,7 +111,7 @@ export default class Server<
     }
   }
 
-  private async handleAggregate(input: AggregateInput) {
+  private async handleAggregate() {
     try {
       if (!this.hasClient) {
         throw new Error("No database client available");
@@ -191,7 +149,7 @@ export default class Server<
 
     // Check cache first for better performance
     if (this.schemaCache.has(modelKey)) {
-      return this.schemaCache.get(modelKey)!;
+      return this.schemaCache.get(modelKey) as z.ZodTypeAny;
     }
 
     // Create new schema if not cached
@@ -330,7 +288,9 @@ export default class Server<
    */
   getModelSchema(model: string): readonly SchemaField[] | undefined {
     const schema = this.schemas[model as keyof Schemas<TDMMF>];
-    if (!schema) return undefined;
+    if (!schema) {
+      return undefined;
+    }
 
     // Return immutable array of schema fields
     return Object.freeze(
