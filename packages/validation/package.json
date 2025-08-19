@@ -1,0 +1,44 @@
+{
+  "name": "@prismate/validation",
+  "version": "0.1.0",
+  "description": "Zod validation and rules module for Prismate",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "@prismate/core": "workspace:*",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@prismate/eslint-config": "workspace:*",
+    "@prismate/typescript-config": "workspace:*",
+    "@types/jest": "^29.5.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "@prisma/client": "^5.0.0"
+  },
+  "keywords": [
+    "prisma",
+    "validation",
+    "zod",
+    "rules",
+    "typescript",
+    "database"
+  ],
+  "author": "Prismate Team",
+  "license": "MIT"
+}
