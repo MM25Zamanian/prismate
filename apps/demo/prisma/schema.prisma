@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -8,55 +11,798 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model TestModel {
-  // Base fields
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// ============================================================================
+// ENUMS
+// ============================================================================
 
-  // Scalar types
-  stringField  String
-  optionalText String?
-  intField     Int
-  floatField   Float
-  booleanField Boolean  @default(false)
-  dateField    DateTime
-  jsonField    String? /// simulate JSON as string (for SQLite)
-
-  // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  // UI metadata examples
-  /// @ui upload:image
-  /// @label تصویر اصلی
-  /// @required true
-  coverImage String?
-
-  /// @ui textarea @label توضیحات
-  description String?
-
-  /// @ui checkbox @label فعال باشد؟
-  isActive Boolean @default(true)
-
-  /// @ui select @label وضعیت
-  status StatusEnum @default(DRAFT)
-
-  // Unique + indexed fields
-  slug         String @unique
-  email        String @unique
-  indexedField String
+enum UserRole {
+  ADMIN
+  MODERATOR
+  USER
+  GUEST
 }
 
-model User {
-  id     String      @id @default(cuid())
-  name   String
-  email  String      @unique
-  models TestModel[]
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
 }
 
-enum StatusEnum {
+enum PostStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+  SCHEDULED
+}
+
+enum PostCategory {
+  TECHNOLOGY
+  BUSINESS
+  LIFESTYLE
+  EDUCATION
+  ENTERTAINMENT
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+  CRYPTO
+  CASH
+}
+
+enum FileType {
+  IMAGE
+  DOCUMENT
+  VIDEO
+  AUDIO
+  ARCHIVE
+  OTHER
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+}
+
+// ============================================================================
+// USER MANAGEMENT
+// ============================================================================
+
+model User {
+  // Primary identification
+  id        String   @id @default(cuid())
+  uuid      String   @unique @default(uuid())
+  email     String   @unique
+  username  String   @unique
+  phone     String?  @unique
+  
+  // Personal information
+  firstName String?
+  lastName  String?
+  displayName String?
+  avatar    String?
+  bio       String?
+  dateOfBirth DateTime?
+  gender    String?
+  
+  // Authentication & security
+  password  String
+  salt      String?
+  emailVerified Boolean @default(false)
+  emailVerificationToken String?
+  passwordResetToken String?
+  passwordResetExpires DateTime?
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret String?
+  
+  // Status & permissions
+  role      UserRole @default(USER)
+  status    UserStatus @default(PENDING_VERIFICATION)
+  isActive  Boolean @default(true)
+  lastLogin DateTime?
+  loginAttempts Int @default(0)
+  lockedUntil DateTime?
+  
+  // Preferences
+  timezone  String @default("UTC")
+  language  String @default("en")
+  theme     String @default("light")
+  notificationsEnabled Boolean @default(true)
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  
+  // Relations
+  profile   UserProfile?
+  posts     Post[]
+  comments  Comment[]
+  likes     Like[]
+  followers Follow[] @relation("UserFollowers")
+  following Follow[] @relation("UserFollowing")
+  orders    Order[]
+  reviews   Review[]
+  notifications Notification[]
+  sessions  Session[]
+  addresses Address[]
+  files     File[]
+  
+  // Many-to-many relations
+  groups    GroupMember[]
+  tags      UserTag[]
+  
+  // Indexes
+  @@index([email])
+  @@index([username])
+  @@index([role])
+  @@index([status])
+  @@index([createdAt])
+  @@index([deletedAt])
+  
+  // Unique constraints
+  @@unique([email, deletedAt])
+  @@unique([username, deletedAt])
+}
+
+model UserProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Extended profile information
+  website     String?
+  company     String?
+  jobTitle    String?
+  location    String?
+  timezone    String?
+  
+  // Social media
+  twitter     String?
+  linkedin    String?
+  github      String?
+  instagram   String?
+  
+  // Preferences
+  newsletter  Boolean @default(false)
+  marketing   Boolean @default(false)
+  privacy     String @default("public")
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+}
+
+// ============================================================================
+// CONTENT MANAGEMENT
+// ============================================================================
+
+model Post {
+  id          String   @id @default(cuid())
+  uuid        String   @unique @default(uuid())
+  
+  // Content
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String
+  summary     String?
+  
+  // Metadata
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  status      PostStatus @default(DRAFT)
+  category    PostCategory
+  featured    Boolean @default(false)
+  publishedAt DateTime?
+  
+  // SEO & analytics
+  metaTitle   String?
+  metaDescription String?
+  keywords    String // Comma-separated keywords
+  viewCount   Int @default(0)
+  likeCount   Int @default(0)
+  commentCount Int @default(0)
+  
+  // Scheduling
+  scheduledAt DateTime?
+  expiresAt   DateTime?
+  
+  // Access control
+  isPublic    Boolean @default(true)
+  allowComments Boolean @default(true)
+  requireApproval Boolean @default(false)
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  comments   Comment[]
+  likes      Like[]
+  tags       PostTag[]
+  files      PostFile[]
+  
+  // Indexes
+  @@index([authorId])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@index([slug])
+  
+  // Unique constraints
+  @@unique([slug, deletedAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  
+  // Content
+  content   String
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  
+  // Moderation
+  isApproved Boolean @default(false)
+  isSpam    Boolean @default(false)
+  isDeleted Boolean @default(false)
+  
+  // Analytics
+  likeCount Int @default(0)
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  
+  // Indexes
+  @@index([authorId])
+  @@index([postId])
+  @@index([parentId])
+  @@index([isApproved])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  // Unique constraint - user can only like a post once
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// TAGGING SYSTEM
+// ============================================================================
+
+model Tag {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  color       String?
+  icon        String?
+  
+  // Usage statistics
+  postCount   Int @default(0)
+  userCount   Int @default(0)
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  posts      PostTag[]
+  users      UserTag[]
+  
+  @@index([name])
+  @@index([slug])
+  @@index([postCount])
+}
+
+model PostTag {
+  id      String @id @default(cuid())
+  postId  String
+  post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tagId   String
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  @@unique([postId, tagId])
+  @@index([postId])
+  @@index([tagId])
+}
+
+model UserTag {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tagId   String
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, tagId])
+  @@index([userId])
+  @@index([tagId])
+}
+
+// ============================================================================
+// SOCIAL FEATURES
+// ============================================================================
+
+model Follow {
+  id          String @id @default(cuid())
+  followerId  String
+  follower    User   @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User   @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@index([createdAt])
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  avatar      String?
+  banner      String?
+  
+  // Settings
+  isPublic    Boolean @default(true)
+  isVerified  Boolean @default(false)
+  allowInvites Boolean @default(true)
+  
+  // Statistics
+  memberCount Int @default(0)
+  postCount   Int @default(0)
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  members    GroupMember[]
+  
+  @@index([name])
+  @@index([slug])
+  @@index([isPublic])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
+
+model GroupMember {
+  id        String @id @default(cuid())
+  groupId   String
+  group     Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String @default("member") // admin, moderator, member
+  joinedAt  DateTime @default(now())
+  
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+  @@index([role])
+}
+
+// ============================================================================
+// E-COMMERCE
+// ============================================================================
+
+model Product {
+  id          String   @id @default(cuid())
+  sku         String   @unique
+  name        String
+  slug        String   @unique
+  description String?
+  shortDescription String?
+  
+  // Pricing
+  price       Float
+  comparePrice Float?
+  costPrice   Float?
+  taxRate     Float @default(0)
+  
+  // Inventory
+  stock       Int @default(0)
+  lowStockThreshold Int @default(5)
+  trackInventory Boolean @default(true)
+  
+  // Product details
+  weight      Float?
+  dimensions  String? // JSON string for length, width, height
+  brand       String?
+  model       String?
+  
+  // Status
+  isActive    Boolean @default(true)
+  isFeatured  Boolean @default(false)
+  isDigital   Boolean @default(false)
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  reviews    Review[]
+  orderItems OrderItem[]
+  files      ProductFile[]
+  
+  @@index([sku])
+  @@index([slug])
+  @@index([price])
+  @@index([stock])
+  @@index([isActive])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  orderNumber   String      @unique
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Order details
+  status        OrderStatus @default(PENDING)
+  total         Float
+  subtotal      Float
+  tax           Float @default(0)
+  shipping      Float @default(0)
+  discount      Float @default(0)
+  
+  // Customer information
+  customerEmail String
+  customerName  String
+  customerPhone String?
+  
+  // Shipping & billing
+  shippingAddressId String?
+  shippingAddress Address? @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id])
+  billingAddressId  String?
+  billingAddress  Address? @relation("OrderBillingAddress", fields: [billingAddressId], references: [id])
+  
+  // Payment
+  paymentMethod PaymentMethod
+  paymentStatus String @default("pending")
+  transactionId String?
+  
+  // Metadata
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  cancelledAt  DateTime?
+  
+  // Relations
+  items       OrderItem[]
+  
+  @@index([orderNumber])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([cancelledAt])
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  
+  // Item details
+  quantity  Int
+  price     Float
+  total     Float
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Review {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // Review content
+  rating    Int // 1-5 stars
+  title     String?
+  content   String?
+  
+  // Moderation
+  isApproved Boolean @default(false)
+  isVerified Boolean @default(false)
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+  @@index([rating])
+  @@index([isApproved])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// ADDRESS MANAGEMENT
+// ============================================================================
+
+model Address {
+  id          String @id @default(cuid())
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Address details
+  type        String @default("shipping") // shipping, billing
+  firstName   String
+  lastName    String
+  company     String?
+  address1    String
+  address2    String?
+  city        String
+  state       String
+  postalCode  String
+  country     String
+  phone       String?
+  
+  // Default flags
+  isDefault   Boolean @default(false)
+  isActive    Boolean @default(true)
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  shippingOrders Order[] @relation("OrderShippingAddress")
+  billingOrders  Order[] @relation("OrderBillingAddress")
+  
+  @@index([userId])
+  @@index([type])
+  @@index([isDefault])
+  @@index([country])
+}
+
+// ============================================================================
+// FILE MANAGEMENT
+// ============================================================================
+
+model File {
+  id          String   @id @default(cuid())
+  uuid        String   @unique @default(uuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // File information
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  type        FileType
+  path        String
+  url         String?
+  
+  // Metadata
+  alt         String?
+  caption     String?
+  description String?
+  tags        String // Comma-separated tags
+  
+  // Processing
+  isProcessed Boolean @default(false)
+  processingStatus String @default("pending")
+  metadata   String? // JSON string for additional file info
+  
+  // Access control
+  isPublic   Boolean @default(false)
+  accessToken String?
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  posts      PostFile[]
+  products   ProductFile[]
+  
+  @@index([userId])
+  @@index([type])
+  @@index([mimeType])
+  @@index([size])
+  @@index([isPublic])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
+
+model PostFile {
+  id      String @id @default(cuid())
+  postId  String
+  post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  fileId  String
+  file    File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  order   Int @default(0)
+  createdAt DateTime @default(now())
+  
+  @@unique([postId, fileId])
+  @@index([postId])
+  @@index([fileId])
+  @@index([order])
+}
+
+model ProductFile {
+  id        String @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fileId    String
+  file      File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  type      String @default("image") // image, video, document
+  order     Int @default(0)
+  createdAt DateTime @default(now())
+  
+  @@unique([productId, fileId])
+  @@index([productId])
+  @@index([fileId])
+  @@index([type])
+  @@index([order])
+}
+
+// ============================================================================
+// NOTIFICATIONS & SESSIONS
+// ============================================================================
+
+model Notification {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Notification content
+  type      NotificationType
+  title     String
+  message   String
+  data      String? // JSON string for additional data
+  
+  // Status
+  isRead    Boolean @default(false)
+  isSent    Boolean @default(false)
+  sentAt    DateTime?
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  expiresAt DateTime?
+  
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([expiresAt])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Session details
+  token     String  @unique
+  ipAddress String?
+  userAgent String?
+  device    String?
+  
+  // Status
+  isActive  Boolean @default(true)
+  lastActivity DateTime @default(now())
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  expiresAt DateTime?
+  
+  @@index([userId])
+  @@index([token])
+  @@index([isActive])
+  @@index([lastActivity])
+  @@index([expiresAt])
+}
+
+// ============================================================================
+// SYSTEM & AUDIT
+// ============================================================================
+
+model SystemLog {
+  id        String @id @default(cuid())
+  
+  // Log details
+  level     String // info, warn, error, debug
+  category  String
+  message   String
+  data      String? // JSON string for additional data
+  
+  // Context
+  userId    String?
+  ipAddress String?
+  userAgent String?
+  path      String?
+  method    String?
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  
+  @@index([level])
+  @@index([category])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String @id @default(cuid())
+  
+  // Audit details
+  action    String // create, update, delete, login, logout
+  entity    String // User, Post, Order, etc.
+  entityId  String
+  userId    String?
+  
+  // Changes
+  oldValues String? // JSON string for old values
+  newValues String? // JSON string for new values
+  
+  // Context
+  ipAddress String?
+  userAgent String?
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  
+  @@index([action])
+  @@index([entity])
+  @@index([entityId])
+  @@index([userId])
+  @@index([createdAt])
 }
