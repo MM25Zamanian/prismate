@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model TestModel {
+  // Base fields
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Scalar types
+  stringField  String
+  optionalText String?
+  intField     Int
+  floatField   Float
+  booleanField Boolean  @default(false)
+  dateField    DateTime
+  jsonField    String? /// simulate JSON as string (for SQLite)
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // UI metadata examples
+  /// @ui upload:image
+  /// @label تصویر اصلی
+  /// @required true
+  coverImage String?
+
+  /// @ui textarea @label توضیحات
+  description String?
+
+  /// @ui checkbox @label فعال باشد؟
+  isActive Boolean @default(true)
+
+  /// @ui select @label وضعیت
+  status StatusEnum @default(DRAFT)
+
+  // Unique + indexed fields
+  slug         String @unique
+  email        String @unique
+  indexedField String
+}
+
+model User {
+  id     String      @id @default(cuid())
+  name   String
+  email  String      @unique
+  models TestModel[]
+}
+
+enum StatusEnum {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
