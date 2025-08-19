@@ -1,64 +1,64 @@
 // Validation-related type definitions
 
-import { z } from "zod";
+import type { z } from "zod";
 
 // Input types for CRUD operations
 export type CreateInput = {
   model: string;
-  data: any;
+  data: Record<string, unknown>;
 };
 
 export type FindManyInput = {
   model: string;
-  where?: any;
-  select?: any;
-  include?: any;
-  orderBy?: any;
+  where?: Record<string, unknown>;
+  select?: Record<string, boolean>;
+  include?: Record<string, boolean>;
+  orderBy?: Record<string, unknown>;
   take?: number;
   skip?: number;
 };
 
 export type FindUniqueInput = {
   model: string;
-  where: any;
-  select?: any;
-  include?: any;
+  where: Record<string, unknown>;
+  select?: Record<string, boolean>;
+  include?: Record<string, boolean>;
 };
 
 export type UpdateInput = {
   model: string;
-  where: any;
-  data: any;
-  select?: any;
-  include?: any;
+  where: Record<string, unknown>;
+  data: Record<string, unknown>;
+  select?: Record<string, boolean>;
+  include?: Record<string, boolean>;
 };
 
 export type DeleteInput = {
   model: string;
-  where: any;
-  select?: any;
-  include?: any;
+  where: Record<string, unknown>;
+  select?: Record<string, boolean>;
+  include?: Record<string, boolean>;
 };
 
 export type CountInput = {
   model: string;
-  where?: any;
+  where?: Record<string, unknown>;
 };
 
 export type AggregateInput = {
   model: string;
-  where?: any;
-  _count?: any;
-  _avg?: any;
-  _sum?: any;
-  _min?: any;
-  _max?: any;
+  where?: Record<string, unknown>;
+  _count?: Record<string, unknown>;
+  _avg?: Record<string, unknown>;
+  _sum?: Record<string, unknown>;
+  _min?: Record<string, unknown>;
+  _max?: Record<string, unknown>;
 };
 
 // Validation result types
 export type ValidationResult<T> = {
   success: true;
-  data: T;
+  data: T;  
 } | {
   success: false;
   errors: string[];
@@ -72,9 +72,9 @@ export interface Validator<T> {
 
 // Schema validator interface
 export interface SchemaValidator<TDMMF> {
-  validateData(model: string, data: any): any;
-  getOrCreateZodSchema(model: string): z.ZodTypeAny;
-  createZodSchema(model: string): z.ZodTypeAny;
-  mapFieldToZod(field: any): z.ZodTypeAny;
-  getBaseZodType(fieldType: string): z.ZodTypeAny;
+  validateData(model: string, data: Record<string, unknown>): Record<string, unknown>;  
+  getOrCreateZodSchema(model: string): z.ZodTypeAny;  
+  createZodSchema(model: string): z.ZodTypeAny;  
+  mapFieldToZod(field: Record<string, unknown>): z.ZodTypeAny;  
+  getBaseZodType(fieldType: string): z.ZodTypeAny;  
 } 

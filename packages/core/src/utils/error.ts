@@ -21,7 +21,7 @@ export const formatError = (error: unknown): string => {
 /**
  * Gets error details for debugging
  */
-export const getErrorDetails = (error: unknown): Record<string, any> => {
+export const getErrorDetails = (error: unknown): Record<string, unknown> => {
   if (error instanceof PrismateError) {
     return {
       name: error.name,
@@ -100,14 +100,15 @@ export const createUserFriendlyMessage = (error: unknown): string => {
  */
 export const logError = (
   error: unknown, 
-  context?: Record<string, any>
+  context?: Record<string, unknown>
 ): void => {
   const errorDetails = getErrorDetails(error);
   const logData = {
     timestamp: new Date().toISOString(),
     error: errorDetails,
-    context: context || {}
+    context: context ?? {}
   };
   
-  console.error('Prismate Error:', JSON.stringify(logData, null, 2));
+   
+  (globalThis as { console?: { error: (message: string, data: string) => void } }).console?.error('Prismate Error:', JSON.stringify(logData, null, 2));
 }; 

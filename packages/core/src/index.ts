@@ -1,7 +1,7 @@
 // Core module exports for Prismate
 
 // Types
-export * from './types';
+export type * from './types';
 
 // Constants
 export * from './constants';

@@ -78,7 +78,7 @@ export type FieldNamesFromDMMF<TDMMF, M extends string> = TDMMF extends DMMFLike
 // Schemas type driven by TDMMF; falls back to string keys if unknown
 export type Schemas<TDMMF> = {
   readonly [M in ModelKeysFromDMMF<TDMMF>]: Readonly<{
-    readonly [F in FieldNamesFromDMMF<TDMMF, M>]: SchemaField;
+    readonly [FieldName in FieldNamesFromDMMF<TDMMF, M>]: SchemaField;  
   }>;
 };
 
@@ -86,8 +86,8 @@ export type Schemas<TDMMF> = {
 export interface SchemaManager<TDMMF> {
   readonly schemas: Schemas<TDMMF>;
   readonly schemaCount: number;
-  getModelSchema(model: string): readonly SchemaField[] | undefined;
-  hasModel(model: string): boolean;
-  getModelFields(model: string): readonly string[];
+  getModelSchema(model: string): readonly SchemaField[] | undefined;  
+  hasModel(model: string): boolean;  
+  getModelFields(model: string): readonly string[];  
   getAvailableModels(): readonly string[];
 } 

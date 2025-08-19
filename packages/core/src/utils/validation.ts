@@ -31,14 +31,14 @@ export const isBoolean = (value: unknown): value is boolean => {
 /**
  * Checks if a value is an object (but not null, array, or primitive)
  */
-export const isObject = (value: unknown): value is Record<string, any> => {
+export const isObject = (value: unknown): value is Record<string, unknown> => {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 };
 
 /**
  * Checks if a value is an array
  */
-export const isArray = (value: unknown): value is any[] => {
+export const isArray = (value: unknown): value is unknown[] => {
   return Array.isArray(value);
 };
 
@@ -93,7 +93,7 @@ export const isStringLengthValid = (str: string, minLength: number, maxLength: n
 /**
  * Validates required fields in an object
  */
-export const validateRequired = <T extends Record<string, any>>(
+export const validateRequired = <T extends Record<string, unknown>>(
   obj: T,
   requiredFields: (keyof T)[]
 ): { isValid: boolean; missingFields: (keyof T)[] } => {

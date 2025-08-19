@@ -1,5 +1,5 @@
 // Core type definitions for Prismate
-export * from './prisma';
-export * from './schema';
-export * from './validation';
-export * from './common'; 
+export type * from './prisma';
+export type * from './schema';
+export type * from './validation';
+export type * from './common'; 

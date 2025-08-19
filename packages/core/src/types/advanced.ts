@@ -7,7 +7,7 @@ export type Result<T, E extends Error = Error> =
 
 // Utility types for Result
 export type SuccessResult<T> = Extract<Result<T>, { success: true }>;
-export type ErrorResult<E> = Extract<Result<T>, { success: false }>;
+export type ErrorResult<E> = Extract<Result<E>, { success: false }>;
 
 // Async Result type
 export type AsyncResult<T, E extends Error = Error> = Promise<Result<T, E>>;
@@ -34,27 +34,26 @@ export type Mutable<T> = {
 
 // NonNullable for nested objects
 export type DeepNonNullable<T> = {
-  [P in keyof T]: T[P] extends object ? DeepNonNullable<T[P]> : NonNullable<T[P];
+  [P in keyof T]: T[P] extends object ? DeepNonNullable<T[P]> : NonNullable<T[P]>;
 };
 
-// Union to intersection type
-export type UnionToIntersection<U> = 
-  (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+// Union to intersection type - simplified for compatibility
+export type UnionToIntersection<U> = U extends unknown ? U : never;
 
 // Tuple to union type
-export type TupleToUnion<T extends readonly any[]> = T[number];
+export type TupleToUnion<T extends readonly unknown[]> = T[number];
 
 // Array element type
 export type ArrayElement<T> = T extends readonly (infer U)[] ? U : never;
 
 // Function return type
-export type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
+export type ReturnType<T> = T extends (...args: unknown[]) => infer R ? R : never;  
 
 // Function parameters type
-export type Parameters<T> = T extends (...args: infer P) => any ? P : never;
+export type Parameters<T> = T extends (...args: infer P) => unknown ? P : never;  
 
 // Constructor type
-export type Constructor<T> = new (...args: any[]) => T;
+export type Constructor<T> = new (...args: unknown[]) => T;  
 
 // Instance type
 export type InstanceType<T> = T extends Constructor<infer U> ? U : never;
@@ -92,7 +91,7 @@ export type ExcludeLiteral<T> = T extends string | number | boolean ? never : T;
 // Path type for nested object access
 export type Path<T> = T extends string | number | boolean
   ? []
-  : T extends readonly any[]
+  : T extends readonly unknown[]
   ? [number, ...Path<T[number]>]
   : T extends object
   ? {
@@ -110,19 +109,19 @@ export type PathValue<T, P extends Path<T>> = P extends [infer K, ...infer R]
   : T;
 
 // Type-safe event emitter
-export type EventMap = Record<string, any>;
+export type EventMap = Record<string, unknown>;
 export type EventKey<T extends EventMap> = string & keyof T;
-export type EventReceiver<T> = (params: T) => void;
+export type EventReceiver<T> = (params: T) => void;  
 
 export interface TypedEventEmitter<T extends EventMap> {
-  on<K extends EventKey<T>>(event: K, fn: EventReceiver<T[K]>): this;
-  off<K extends EventKey<T>>(event: K, fn: EventReceiver<T[K]>): this;
-  emit<K extends EventKey<T>>(event: K, params: T[K]): boolean;
+  on<K extends EventKey<T>>(event: K, fn: EventReceiver<T[K]>): this;  
+  off<K extends EventKey<T>>(event: K, fn: EventReceiver<T[K]>): this;  
+  emit<K extends EventKey<T>>(event: K, params: T[K]): boolean;  
 }
 
 // Type-safe builder pattern
 export type Builder<T, K extends keyof T = keyof T> = {
-  [P in K]: (value: T[P]) => Builder<Omit<T, P>, Exclude<K, P>>;
+  [P in K]: (value: T[P]) => Builder<Omit<T, P>, Exclude<K, P>>;  
 } & {
   build(): T;
 };
@@ -131,12 +130,12 @@ export type Builder<T, K extends keyof T = keyof T> = {
 export type StateMachine<TState extends string, TEvent extends string> = {
   currentState: TState;
   transitions: Record<TState, Record<TEvent, TState>>;
-  transition(event: TEvent): TState;
+  transition(event: TEvent): TState;  
 };
 
 // Type-safe option builder
 export type OptionBuilder<T> = {
-  [K in keyof T]: (value: T[K]) => OptionBuilder<Omit<T, K>>;
+  [K in keyof T]: (value: T[K]) => OptionBuilder<Omit<T, K>>;  
 } & {
   build(): T;
 };

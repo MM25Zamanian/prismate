@@ -43,7 +43,7 @@ export interface SortOption {
 export interface FilterCondition {
   field: string;
   operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains' | 'startsWith' | 'endsWith' | 'in' | 'notIn';
-  value: any;
+  value: unknown;
 }
 
 export interface FilterGroup {
@@ -55,7 +55,7 @@ export interface FilterGroup {
 export interface QueryOptions {
   select?: Record<string, boolean>;
   include?: Record<string, boolean>;
-  where?: any;
+  where?: Record<string, unknown>;
   orderBy?: SortOption | SortOption[];
   pagination?: PaginationOptions;
 }
@@ -82,6 +82,6 @@ export interface Lifecycle {
 
 // Configurable interface
 export interface Configurable<TConfig> {
-  configure(config: Partial<TConfig>): void;
+  configure(config: Partial<TConfig>): void;  
   getConfig(): TConfig;
 } 

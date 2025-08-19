@@ -1,6 +1,6 @@
 // String utility functions
 
-import { camelCase, pascalCase, kebabCase, snakeCase } from 'change-case';
+import { camelCase, kebabCase, pascalCase, snakeCase } from 'change-case';
 
 /**
  * Converts a string to camelCase
@@ -41,7 +41,7 @@ export const uncapitalize = (str: string): string => {
 /**
  * Checks if a string is empty or contains only whitespace
  */
-export const isEmpty = (str: string): boolean => {
+export const isStringEmpty = (str: string): boolean => {
   return !str || str.trim().length === 0;
 };
 
