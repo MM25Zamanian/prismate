@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-import "prismate/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 
@@ -26,7 +25,7 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
