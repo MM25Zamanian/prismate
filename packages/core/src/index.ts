@@ -64,7 +64,8 @@ export {
   deepMerge,
   pick,
   omit,
-  isEmpty,
+  isEmpty, // backward-compatible alias
+  isEmptyObject,
   get,
   set,
   flatten,
@@ -85,7 +86,17 @@ export {
   getErrorDetails,
   isRetryableError,
   createUserFriendlyMessage,
-  logError
+  logError,
+  // string utils
+  toCamelCase,
+  toPascalCase,
+  toKebabCase,
+  toSnakeCase,
+  capitalize,
+  uncapitalize,
+  isEmptyString,
+  truncate,
+  randomString
 } from './utils';
 
 // Re-export error classes and utilities
