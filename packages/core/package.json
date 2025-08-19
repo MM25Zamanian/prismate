@@ -1,7 +1,7 @@
 {
   "name": "@prismate/core",
   "version": "0.1.0",
-  "description": "Core foundation module for Prismate",
+  "description": "Core foundation module for Prismate with advanced type safety and performance optimizations",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -11,14 +11,27 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "benchmark": "tsx src/benchmarks/index.ts",
+    "prepublishOnly": "pnpm run clean && pnpm run build && pnpm run test"
   },
   "dependencies": {
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "change-case": "^5.4.4"
   },
   "devDependencies": {
     "@prismate/eslint-config": "workspace:*",
     "@prismate/typescript-config": "workspace:*",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "tsx": "^4.0.0",
     "typescript": "^5.3.0"
   },
   "peerDependencies": {
@@ -29,8 +42,14 @@
     "orm",
     "typescript",
     "validation",
-    "database"
+    "database",
+    "core",
+    "types",
+    "utilities"
   ],
   "author": "Prismate Team",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 } 
