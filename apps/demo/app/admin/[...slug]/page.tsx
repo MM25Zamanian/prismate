@@ -2,10 +2,17 @@
 
 import { orpc } from "@/lib/prismate";
 import { useParams } from "next/navigation";
-import { AdminUI } from "prismate";
+// Temporarily disable AdminUI import since it's not exported from 'prismate'
+// import { AdminUI } from "prismate";
 
 export default function Page() {
   const { slug } = useParams<{ slug: string[] }>();
 
-  return <AdminUI orpc={orpc} model={slug?.[0]} />;
+  // Persian: کامپوننت مدیریت در دسترس نیست.
+  return (
+    <div className="p-4">
+      <p>ماژول مدیریت در دسترس نیست.</p>
+      <p className="opacity-80">model: {slug?.[0] ?? "—"}</p>
+    </div>
+  );
 }

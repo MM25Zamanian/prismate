@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import "prismate/globals.css";
+// Removed non-exported CSS import from 'prismate'
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 
@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
+  manifest: "/manifest.webmanifest",
 };
 
 export const viewport: Viewport = {

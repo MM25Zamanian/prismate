@@ -1,3 +1,6 @@
 @import "tailwindcss";
 
 @config "../tailwind.config.js";
+
+/* Basic style for offline page text rendering */
+html, body { height: 100%; }

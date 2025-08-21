@@ -5,6 +5,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "types": ["@serwist/next/typings"],
     "paths": {
       "@/*": ["./*"],
     }

@@ -36,6 +36,13 @@ npm install
 
 ```bash
 npm run dev
+### PWA
+
+- Serwist is integrated via `@serwist/next`.
+- Service worker source: `sw/sw.ts` -> emitted to `public/sw.js` on build.
+- Manifest route: `app/manifest.ts` and referenced in `app/layout.tsx`.
+- Offline fallback: `public/offline.html`.
+
 ```
 
 ### Setup pnpm (optional)
