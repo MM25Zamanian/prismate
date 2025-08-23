@@ -1,5 +1,5 @@
 {
-  "extends": "@prismate/typescript-config/react-library.json",
+  "extends": "@prismate/typescript-config/base.json",
   "compilerOptions": {
     "outDir": "dist",
     "baseUrl": ".",

@@ -1,16 +1,15 @@
 "use client";
 
-import { orpc } from "@/lib/prismate";
-import { useQuery } from "@tanstack/react-query";
+import { x } from "@/lib/prismate";
 
-export default function Home() {
-  const { data } = useQuery(
-    orpc.findMany.queryOptions({
-      input: {
-        model: "user",
-      },
-    })
+export default async function Home() {
+  return (
+    <section>
+      <pre>{JSON.stringify(x.getAvailableModels(), null, 2)}</pre>;
+
+      <hr />
+      <h1>Users</h1>
+      <pre>{JSON.stringify(await x.getModels("user"), null, 2)}</pre>;
+    </section>
   );
-
-  return <pre>{JSON.stringify(data, null, 2)}</pre>;
 }
