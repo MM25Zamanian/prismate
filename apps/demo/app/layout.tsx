@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "@prismate/ui/styles";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 

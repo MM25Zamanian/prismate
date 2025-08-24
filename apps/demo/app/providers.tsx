@@ -7,6 +7,7 @@ import { HeroUIProvider } from "@heroui/system";
 import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ConfigProvider } from "@prismate/ui";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -28,7 +29,18 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   return (
     <HeroUIProvider navigate={router.push}>
       <QueryClientProvider client={queryClient}>
-        <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+        <NextThemesProvider {...themeProps}>
+          <ConfigProvider
+            config={{
+              theme: 'system',
+              direction: 'ltr',
+              locale: 'en-US',
+              apiBaseUrl: '/api/prismate',
+            }}
+          >
+            {children}
+          </ConfigProvider>
+        </NextThemesProvider>
       </QueryClientProvider>
     </HeroUIProvider>
   );
