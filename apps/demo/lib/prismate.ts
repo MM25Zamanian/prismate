@@ -1,5 +1,9 @@
-import { PrismateAdmin } from "prismate";
-import { db } from "./prisma"; // Prisma Client instance
 import { Prisma } from "@/generated/prisma";
+import { createModelRouter } from "@prismate/api";
+import { db } from "./prisma";
 
-export const x = new PrismateAdmin(db as any, Prisma.dmmf);
+// init prisma + service
+export const modelsApp = createModelRouter({
+  client: db as any,
+  dmmf: Prisma.dmmf,
+});
