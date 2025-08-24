@@ -2,9 +2,10 @@
 export * from './button'
 export * from './input'
 export * from './card'
-
-// Future exports will be added here as we create more components
-// export * from './select'
+export * from './badge'
+export * from './table'
+export * from './dialog'
+export * from './select'
 // export * from './checkbox'
 // export * from './radio-group'
 // export * from './switch'

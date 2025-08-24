@@ -1,6 +1,44 @@
 # @prismate/ui
 
-Production-ready admin panel UI package for Prismate with full RTL support, comprehensive theming, and enterprise-grade components.
+Production-ready admin panel UI package for Prismate with **single-import PrismateAdmin component** that provides a complete admin interface.
+
+## 🚀 Quick Start - Single Import Admin Panel
+
+```tsx
+import { PrismateAdmin } from '@prismate/ui'
+
+const models = [
+  {
+    name: 'user',
+    displayName: 'Users',
+    fields: [
+      { name: 'id', type: 'number', label: 'ID', readOnly: true },
+      { name: 'name', type: 'string', label: 'Name', required: true },
+      { name: 'email', type: 'email', label: 'Email', required: true },
+    ]
+  }
+]
+
+export default function AdminPage() {
+  return (
+    <PrismateAdmin
+      config={{
+        models,
+        title: 'My Admin Panel',
+        apiUrl: '/api/admin'
+      }}
+    />
+  )
+}
+```
+
+**That's it!** You now have a fully functional admin panel with:
+- ✅ CRUD operations
+- ✅ Search & filtering
+- ✅ Pagination
+- ✅ Responsive design
+- ✅ Dark mode support
+- ✅ RTL support
 
 ## Features
 

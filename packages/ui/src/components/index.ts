@@ -1,8 +1,8 @@
 // UI Components
 export * from './ui'
 
-// Admin Components (to be implemented)
-// export * from './admin'
+// Admin Components
+export * from './admin'
 
 // Form Components (to be implemented)
 // export * from './forms'

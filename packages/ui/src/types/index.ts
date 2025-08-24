@@ -405,6 +405,9 @@ export interface VirtualizerOptions {
   scrollToFn?: (offset: number, behavior?: ScrollBehavior) => void
 }
 
+// Export admin types
+export * from './admin'
+
 // Chart types
 export interface ChartData {
   labels: string[]
