@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { SchemaField } from "../core/types";
+import type { SchemaField } from "@prismate/core";
 
 export function getBaseZodType(fieldType: string): z.ZodTypeAny {
   switch (fieldType) {

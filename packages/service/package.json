@@ -1,7 +1,8 @@
 {
-  "name": "prismate",
+  "name": "@prismate/service",
   "version": "0.0.1",
   "type": "module",
+  "private": true,
   "exports": {
     ".": "./src/index.ts"
   },
@@ -18,6 +19,9 @@
   "devDependencies": {
     "@prismate/eslint-config": "workspace:*",
     "@prismate/typescript-config": "workspace:*",
+    "@prismate/core": "workspace:*",
+    "@prismate/database": "workspace:*",
+    "@prismate/validation": "workspace:*",
     "@types/node": "^22.15.3",
     "eslint": "^9.31.0",
     "typescript": "5.8.2"

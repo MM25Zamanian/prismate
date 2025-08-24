@@ -1,4 +1,4 @@
-import type { ModelName } from "../core/types";
+import type { ModelName } from "@prismate/core";
 
 export type QueryOptions = {
   readonly where?: unknown;

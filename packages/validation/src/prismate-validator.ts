@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { mapFieldToZod as defaultFieldMapper } from "./field-mappers";
 
-import type { CacheConfig, CacheStats, Schemas, SchemaField } from "../core/types";
+import type { CacheConfig, CacheStats, Schemas, SchemaField } from "@prismate/core";
 
 type CacheEntry<T> = { value: T; expiresAt?: number };
 
