@@ -1,8 +1,12 @@
 // UI Components
 export * from './ui'
 
-// Admin Components
-export * from './admin'
+// Admin Components - Simplified
+export { PrismateAdmin } from './prismate-admin'
+export { AdminLayout } from './admin-layout'
+export { ModelList } from './model-list'
+export { ModelDetail } from './model-detail'
+export { ModelForm } from './model-form'
 
 // Form Components (to be implemented)
 // export * from './forms'

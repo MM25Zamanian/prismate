@@ -1,44 +1,67 @@
 # @prismate/ui
 
-Production-ready admin panel UI package for Prismate with **single-import PrismateAdmin component** that provides a complete admin interface.
+**Simplified** admin panel UI package for Prismate with **automatic model detection** from your Prismate instance.
 
-## 🚀 Quick Start - Single Import Admin Panel
+## 🚀 Quick Start - Zero Configuration
 
 ```tsx
 import { PrismateAdmin } from '@prismate/ui'
-
-const models = [
-  {
-    name: 'user',
-    displayName: 'Users',
-    fields: [
-      { name: 'id', type: 'number', label: 'ID', readOnly: true },
-      { name: 'name', type: 'string', label: 'Name', required: true },
-      { name: 'email', type: 'email', label: 'Email', required: true },
-    ]
-  }
-]
+import { prismate } from './lib/prismate' // Your Prismate instance
 
 export default function AdminPage() {
-  return (
-    <PrismateAdmin
-      config={{
-        models,
-        title: 'My Admin Panel',
-        apiUrl: '/api/admin'
-      }}
-    />
-  )
+  return <PrismateAdmin prismateInstance={prismate} />
 }
 ```
 
 **That's it!** You now have a fully functional admin panel with:
+- ✅ **Automatic model detection** from Prisma schema
+- ✅ **Smart field rendering** based on Prisma types
+- ✅ **Zero configuration** required
 - ✅ CRUD operations
-- ✅ Search & filtering
-- ✅ Pagination
 - ✅ Responsive design
 - ✅ Dark mode support
 - ✅ RTL support
+
+## 🎯 Key Features of Simplified Approach
+
+### **1. Automatic Everything**
+- Models are **automatically detected** from your Prismate instance
+- Field types are **automatically inferred** from Prisma schema
+- UI components are **automatically selected** based on field types
+- No manual configuration needed!
+
+### **2. Simple Overrides**
+```tsx
+<PrismateAdmin 
+  prismateInstance={prismate}
+  overrides={{
+    models: {
+      user: {
+        fields: {
+          password: { hidden: true },     // Hide sensitive fields
+          email: { label: 'Email Address' } // Custom labels
+        }
+      }
+    },
+    ui: {
+      title: 'My Admin',
+      theme: 'dark',
+      layout: 'tabs'
+    }
+  }}
+/>
+```
+
+### **3. Smart Field Rendering**
+The package automatically renders the correct input type based on Prisma field types:
+- `String` → Text input (or textarea for long text)
+- `Int/Float` → Number input
+- `Boolean` → Checkbox
+- `DateTime` → Date picker
+- `Enum` → Select dropdown
+- `Json` → JSON editor
+- Relations → Relation picker
+- Arrays → Multi-value input
 
 ## Features
 

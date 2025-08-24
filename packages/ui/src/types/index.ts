@@ -405,8 +405,8 @@ export interface VirtualizerOptions {
   scrollToFn?: (offset: number, behavior?: ScrollBehavior) => void
 }
 
-// Export admin types
-export * from './admin'
+// Export simplified types
+export * from './prismate'
 
 // Chart types
 export interface ChartData {
